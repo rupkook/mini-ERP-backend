@@ -1,7 +1,10 @@
-import express, { Application, Request, Response } from 'express';
+import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
+
+// Load environment variables FIRST — before anything else
+dotenv.config();
 
 // Config
 import connectDB from './config/db';
@@ -16,12 +19,6 @@ import saleRoutes from './routes/sale.routes';
 // Middleware
 import { globalErrorHandler } from './utils/errorHandler';
 
-// Load environment variables
-dotenv.config();
-
-// Connect to MongoDB
-connectDB();
-
 const app: Application = express();
 
 // Middleware
@@ -34,6 +31,17 @@ app.use(express.urlencoded({ extended: true }));
 
 // Static files (for uploads)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Ensure DB is connected before handling any API request
+app.use(async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error('Failed to connect to MongoDB:', error);
+    res.status(500).json({ message: 'Database connection failed' });
+  }
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
