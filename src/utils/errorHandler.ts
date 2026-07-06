@@ -21,7 +21,9 @@ export const globalErrorHandler = (
   const statusCode = 'statusCode' in err ? err.statusCode : 500;
   const message = err.message || 'Internal Server Error';
 
-  console.error('Error:', err);
+  if (statusCode !== 401) {
+    console.error('Error:', err);
+  }
 
   res.status(statusCode).json({
     success: false,

@@ -14,15 +14,15 @@ const users = [
 const seedData = async () => {
   try {
     await connectDB();
-    
+
     // Clean up existing users to start fresh
     await User.deleteMany({});
-    
+
     // Create users one by one to trigger the password hashing pre('save') middleware
     for (const u of users) {
       await User.create(u);
     }
-    
+
     console.log('Database seeded with demo users successfully!');
     process.exit(0);
   } catch (error) {
