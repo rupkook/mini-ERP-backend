@@ -28,7 +28,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
       throw new AppError('Invalid email or password', 401);
     }
 
-    const token = generateToken(user._id as string);
+    const token = generateToken(user._id as unknown as string);
 
     sendResponse(res, 200, 'Login successful', {
       token,

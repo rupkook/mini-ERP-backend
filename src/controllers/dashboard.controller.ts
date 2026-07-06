@@ -6,7 +6,7 @@ import { sendResponse } from '../utils/apiResponse';
 
 export const getDashboardStats = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const [totalProducts, totalCustomers, salesAgg, lowStockProducts] = await Promise.all([
+    const [totalProducts, totalCustomers, salesAgg, lowStockProducts, highStockProducts] = await Promise.all([
       Product.countDocuments(),
       Customer.countDocuments(),
       Sale.aggregate([
@@ -22,6 +22,10 @@ export const getDashboardStats = async (_req: Request, res: Response, next: Next
         .select('name sku stockQuantity category')
         .sort('stockQuantity')
         .limit(10),
+      Product.find({ stockQuantity: { $gte: 20 } })
+        .select('name sku stockQuantity category')
+        .sort('-stockQuantity')
+        .limit(10),
     ]);
 
     const salesData = salesAgg[0] || { totalSales: 0, count: 0 };
@@ -32,6 +36,7 @@ export const getDashboardStats = async (_req: Request, res: Response, next: Next
       totalSales: salesData.totalSales,
       totalSalesCount: salesData.count,
       lowStockProducts,
+      highStockProducts,
     });
   } catch (error) {
     next(error);
