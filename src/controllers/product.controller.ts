@@ -12,7 +12,7 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
 
     const productData = {
       ...req.body,
-      productImage: `/uploads/${req.file.filename}`,
+      productImage: req.file.path,
     };
 
     const product = await Product.create(productData);
@@ -56,7 +56,7 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
     const updateData: Record<string, unknown> = { ...req.body };
 
     if (req.file) {
-      updateData.productImage = `/uploads/${req.file.filename}`;
+      updateData.productImage = req.file.path;
     }
 
     const product = await Product.findByIdAndUpdate(req.params.id, updateData, {
